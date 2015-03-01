@@ -2,7 +2,7 @@
 
 export JETSTREAM_HOME=$(pwd)
 
-export JETSTREAM_NETMASK="10.28.5.255"
+export JETSTREAM_NETMASK="0.0.0.0/24"
 
 export JETSTREAM_JAVA_OPTS="-server -Xms2g -Xmx2g -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+UseCompressedOops -X:MaxTenuringThreshold=8 -XX:CMSInitiatingOccupancyFraction=75 -XX:MaxNewSize=1g -XX:NewSize=1g -XX:+CMSConcurrentMTEnabled -XX:+CMSScavengeBeforeRemark"
 
