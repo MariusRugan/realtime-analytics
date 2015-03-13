@@ -14,12 +14,12 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
-import org.springframework.beans.factory.InitializingBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,8 +30,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -48,9 +46,7 @@ import lombok.experimental.Accessors;
 @ManagedResource(objectName = "Event/Processor", description = "Event Simulator")
 public class Simulator extends AbstractEventProcessor {
 
-    private Timer timer = new Timer("Timer");
-
-    private TimerTask timerTask;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Simulator.class.getPackage().getName());
 
     private String simulatorFilePath;
 
@@ -89,25 +85,90 @@ public class Simulator extends AbstractEventProcessor {
     static String NODE = "http://localhost:8080";
 
     static List<String> m_ipList = new ArrayList<String>();
-    static List<String> m_uaList = new ArrayList<String>();
-    static List<String> m_itemList = new ArrayList<String>();
 
-    /*
-    private class SimulatorTimingTask extends TimerTask {
-        public void run() {
-            generate();
-        }
-    }
-    */
+    static List<String> m_uaList = new ArrayList<String>();
+
+    static List<String> m_itemList = new ArrayList<String>();
 
     @Override
     public void afterPropertiesSet() throws Exception {
 		Management.removeBeanOrFolder(getBeanName(), this);
 		Management.addBean(getBeanName(), this);
-		//timerTask = new SimulatorTimingTask();
-		//timer.schedule(timerTask, 30 * 1000);
         init();
     }
+
+    @Override
+    public void sendEvent(JetstreamEvent event) throws EventException {}
+
+    @Override
+    public int getPendingEvents() {
+        return 0;
+    }
+
+    @Override
+    public void shutDown() {
+        if (m_method != null) {
+            m_method.releaseConnection();
+        }
+    }
+
+    @ManagedOperation
+    @Scheduled(fixedRate=5000)
+    public void generate() {
+        while (true) {
+            try {
+                if (m_runFlag) {
+                    String payload;
+                    if (batchMode) {
+                        adjustBatchSize();
+                        payload = buildPayload(m_payload, m_batchSize);
+                        m_method.setRequestBody(buildPayload(payload, m_batchSize));
+                    } else {
+                        m_batchSize = 1;
+                        payload = buildPayload(m_payload, 1);
+                        m_method.setRequestBody(buildPayload(payload, 1));
+                    }
+                    LOGGER.info(payload);
+                    m_client.executeMethod(m_method);
+                }
+            } catch (HttpException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                m_method.releaseConnection();
+                m_method.removeRequestHeader("Content-Length");
+            }
+
+            Random random = new Random();
+            long sleep = random.nextInt(5000);
+
+            LOGGER.info("sleep = " + sleep);
+
+            try {
+                Thread.sleep(sleep);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @ManagedOperation
+    public void start() {
+        m_runFlag = true;
+    }
+
+    @ManagedOperation
+    @Override
+    public void pause() {
+        m_runFlag = false;
+    }
+
+    @Override
+    protected void processApplicationEvent(ApplicationEvent event) {}
+
+    @Override
+    public void resume() {}
 
     private void init() {
 
@@ -135,24 +196,6 @@ public class Simulator extends AbstractEventProcessor {
         m_method.setRequestHeader("Accept-Charset", "UTF-8");
     }
 
-    @Override
-    public void sendEvent(JetstreamEvent event) throws EventException {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public int getPendingEvents() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public void shutDown() {
-        if (m_method != null) {
-            m_method.releaseConnection();
-        }
-    }
-
     private long trafficVolume(int baseVolume, double peakTimes, int sec) {
         if (baseVolume < 0) {
             throw new IllegalArgumentException("baseVolume should be >= 0!");
@@ -167,64 +210,6 @@ public class Simulator extends AbstractEventProcessor {
         Date date = new Date();
         int secondValue = date.getSeconds();
         m_batchSize = trafficVolume(minVolume, peakTimes, secondValue);
-    }
-
-    @ManagedOperation
-    @Scheduled(fixedRate=2000)
-    public void generate() {
-        while (true) {
-            adjustBatchSize();
-            try {
-                if (m_runFlag) {
-                    if (batchMode) {
-                        m_method.setRequestBody(buildBatchPayload(m_payload));
-                    } else {
-                        m_method.setRequestBody(m_payload);
-                    }
-                    m_client.executeMethod(m_method);
-                }
-            } catch (HttpException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } finally {
-                m_method.releaseConnection();
-                m_method.removeRequestHeader("Content-Length");
-            }
-            Random random = new Random();
-            long sleep = random.nextInt(10000);
-            System.out.println("sleep = " + sleep);
-            try {
-                Thread.sleep(sleep);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @ManagedOperation
-    public void start() {
-        m_runFlag = true;
-    }
-
-    @ManagedOperation
-    @Override
-    public void pause() {
-        m_runFlag = false;
-    }
-
-    @Override
-    protected void processApplicationEvent(ApplicationEvent event) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void resume() {
-        // TODO Auto-generated method stub
-
     }
 
     private String readFromResource() {
@@ -249,24 +234,27 @@ public class Simulator extends AbstractEventProcessor {
                 }
             }
         } catch (FileNotFoundException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         }
 
         return payload;
     }
 
-    private String buildBatchPayload(String payload) {
+    private String buildPayload(String payload, long size) {
         Random random = new Random();
         StringBuffer strBuffer = new StringBuffer("[");
-        for (int i = 0; i < m_batchSize; i++) {
+
+        for (int i = 0; i < size; i++) {
+
             int randomInt = random.nextInt(siCount);
             RawSource source = (RawSource) m_guidList.get(randomInt);
             strBuffer.append(replaceSource(payload, source));
-            if (i < m_batchSize - 1) {
+
+            if (i < size - 1) {
                 strBuffer.append(",");
             }
         }
+
         strBuffer.append("]");
         return strBuffer.toString();
     }
@@ -280,13 +268,9 @@ public class Simulator extends AbstractEventProcessor {
         String payload4 = payload3.replace("${ctValue}", String.valueOf(System.currentTimeMillis()));
         String[] items = m_itemList.get(random.nextInt(m_itemList.size() - 1)).split(":");
         String payload5 = payload4.replace("${itemTitle}", items[0]);
-        String
-            payload6 =
-            payload5.replace("${itmPrice}", String.valueOf(((double) random.nextInt(10000) * 36) / 100.00));
+        String payload6 = payload5.replace("${itmPrice}", String.valueOf(((double) random.nextInt(10000) * 36) / 100.00));
         String payload7 = payload6.replace("${campaignName}", "Campaign - " + String.valueOf(random.nextInt(20)));
-        String
-            payload8 =
-            payload7.replace("${cmapaignGMV}", String.valueOf(((double) random.nextInt(100000) * 7) / 100.00));
+        String payload8 = payload7.replace("${cmapaignGMV}", String.valueOf(((double) random.nextInt(100000) * 7) / 100.00));
         String payload9 = payload8.replace("${cmapaignQuantity}", String.valueOf(random.nextInt(100)));
         String payload10 = payload9.replace("${deviceType}", String.valueOf(random.nextInt(100)));
 
