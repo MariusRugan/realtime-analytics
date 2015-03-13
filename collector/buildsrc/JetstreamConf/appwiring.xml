@@ -6,10 +6,11 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
   -->
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+    http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd"
     default-lazy-init="false">
-    
+
     <bean id="NettyHttpServerConfig" class="com.ebay.jetstream.http.netty.server.HttpServerConfig">
         <property name="port" value="8080" />
         <property name="maxWorkQueueSz" value="100000" />
@@ -30,7 +31,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
             </list>
         </property>
     </bean>
-    
+
     <bean id="Validator" class="com.ebay.pulsar.collector.validation.DefaultValidator">
         <property name="mandatoryTags">
             <list>
@@ -38,6 +39,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
             </list>
         </property>
     </bean>
+
     <bean id="InboundRESTServlet" class="com.ebay.pulsar.collector.servlet.IngestServlet" >
         <property name="validator" ref="Validator"/>
     </bean>
@@ -45,12 +47,12 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
     <bean id="NettyHttpServer" class="com.ebay.jetstream.http.netty.server.HttpServer">
         <property name="serverConfig" ref="NettyHttpServerConfig" />
     </bean>
-    
+
     <bean class="com.ebay.jetstream.event.support.channel.ChannelBinding">
         <property name="channel" ref="InboundRESTEvents">
         </property>
     </bean>
-    
+
     <bean id="InboundRESTEvents"
         class="com.ebay.jetstream.event.channel.messaging.http.inbound.InboundRESTChannel">
         <property name="server" ref="NettyHttpServer" />
@@ -62,13 +64,13 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
             </list>
         </property>
     </bean>
-    
-    <bean 
+
+    <bean
         class="com.ebay.jetstream.event.support.channel.ChannelBinding"
         depends-on="MessageService">
         <property name="channel" ref="InboundMessages"/>
     </bean>
-    
+
     <bean id="InboundChannelAddress"
         class="com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress">
         <property name="channelTopics">
@@ -78,11 +80,11 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         </property>
     </bean>
 
-    <bean id="InboundMessagingChannelController" 
+    <bean id="InboundMessagingChannelController"
         class="com.ebay.jetstream.event.channel.messaging.InboundMessagingChannelController">
         <property name="channel" ref="InboundMessages"/>
     </bean>
-    
+
     <bean id="InboundMessages"
         class="com.ebay.jetstream.event.channel.messaging.InboundMessagingChannel">
         <property name="address" ref="InboundChannelAddress" />
@@ -94,7 +96,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
             </list>
         </property>
     </bean>
-    
+
     <bean id="EsperProcessor" class="com.ebay.jetstream.event.processor.esper.EsperProcessor">
         <property name="esperEventListener" ref="EsperEventListener" />
         <property name="configuration" ref="EsperConfiguration" />
@@ -106,12 +108,12 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         </property>
         <property name="adviceListener" ref="CollectorRawEventAdviceProcessor"/>
     </bean>
-    
+
     <bean id="OutboundMessageChanneBinder" class="com.ebay.jetstream.event.support.channel.ChannelBinding"
         depends-on="MessageService">
         <property name="channel" ref="OutboundMessages" />
     </bean>
-    
+
     <bean id="OutboundMessages"
         class="com.ebay.jetstream.event.channel.messaging.OutboundMessagingChannel"
         depends-on="MessageService">
@@ -127,8 +129,8 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
             </list>
         </property>
     </bean>
-    
-    <!-- This Orchestrator is used to gracefully shutdown the processors in case of error. Mention all the 
+
+    <!-- This Orchestrator is used to gracefully shutdown the processors in case of error. Mention all the
     processors you want to shut down. Make sure you implement shutdown for custom processors. -->
     <bean id="ShutDownOrchestrator" class="com.ebay.jetstream.event.support.ShutDownOrchestrator"
         lazy-init="false">
@@ -140,13 +142,13 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
             </list>
         </property>
     </bean>
-    
+
     <bean id="DeviceEnrichmentUtil" class="com.ebay.pulsar.collector.udf.DeviceEnrichmentUtil" factory-method="getInstance"/>
-    
+
     <bean id="GeoEnrichmentUtil" class="com.ebay.pulsar.collector.udf.GeoEnrichmentUtil" factory-method="getInstance">
         <property name="geoDBFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/geodb/GeoLite2-City.mmdb" />
     </bean>
-    
+
     <bean id="EventGenerator" class="com.ebay.pulsar.collector.simulator.Simulator">
 		<property name="simulatorFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/Event.txt" />
 		<property name="ipFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/ip.txt" />
@@ -154,7 +156,10 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
 		<property name="itmFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/item.txt" />
 		<property name="siCount" value="100" />
 		<property name="minVolume" value="2" />
-		<property name="peakTimes" value="30" />
-		<property name="batchMode" value="true" />
+		<property name="peakTimes" value="50" />
+		<property name="batchMode" value="false" />
 	</bean>
+
+    <task:annotation-driven/>
+
 </beans>
