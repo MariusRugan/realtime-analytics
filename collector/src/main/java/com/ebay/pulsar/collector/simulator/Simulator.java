@@ -242,7 +242,12 @@ public class Simulator extends AbstractEventProcessor {
 
     private String buildPayload(String payload, long size) {
         Random random = new Random();
-        StringBuffer strBuffer = new StringBuffer("[");
+
+        StringBuffer strBuffer = new StringBuffer();
+
+        if (size > 1) {
+            strBuffer.append("]");
+        }
 
         for (int i = 0; i < size; i++) {
 
@@ -255,7 +260,9 @@ public class Simulator extends AbstractEventProcessor {
             }
         }
 
-        strBuffer.append("]");
+        if (size > 1) {
+            strBuffer.append("]");
+        }
         return strBuffer.toString();
     }
 
