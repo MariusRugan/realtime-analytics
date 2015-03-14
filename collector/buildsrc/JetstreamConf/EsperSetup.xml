@@ -9,7 +9,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
     xsi:schemaLocation="http://www.springframework.org/schema/beans
     http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
     default-lazy-init="true">
-    
+
     <bean id="EsperEventListener"
         class="com.ebay.jetstream.event.processor.esper.EsperEventListener">
     </bean>
@@ -34,8 +34,8 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         <property name="timerLogging" value="true" />
         <property name="autoImport">
             <list>
-                <value>com.ebay.pulsar.collector.udf.DeviceEnrichmentUtil</value>
-                <value>com.ebay.pulsar.collector.udf.GeoEnrichmentUtil</value>
+                <value>com.ebay.pulsar.randomtraffic.udf.DeviceEnrichmentUtil</value>
+                <value>com.ebay.pulsar.randomtraffic.udf.GeoEnrichmentUtil</value>
             </list>
         </property>
     </bean>
@@ -63,5 +63,5 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
             </list>
         </property>
     </bean>
-    
+
 </beans>

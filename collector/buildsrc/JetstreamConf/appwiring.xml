@@ -65,9 +65,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         </property>
     </bean>
 
-    <bean
-        class="com.ebay.jetstream.event.support.channel.ChannelBinding"
-        depends-on="MessageService">
+    <bean class="com.ebay.jetstream.event.support.channel.ChannelBinding" depends-on="MessageService">
         <property name="channel" ref="InboundMessages"/>
     </bean>
 
@@ -109,14 +107,11 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         <property name="adviceListener" ref="CollectorRawEventAdviceProcessor"/>
     </bean>
 
-    <bean id="OutboundMessageChanneBinder" class="com.ebay.jetstream.event.support.channel.ChannelBinding"
-        depends-on="MessageService">
+    <bean id="OutboundMessageChanneBinder" class="com.ebay.jetstream.event.support.channel.ChannelBinding" depends-on="MessageService">
         <property name="channel" ref="OutboundMessages" />
     </bean>
 
-    <bean id="OutboundMessages"
-        class="com.ebay.jetstream.event.channel.messaging.OutboundMessagingChannel"
-        depends-on="MessageService">
+    <bean id="OutboundMessages" class="com.ebay.jetstream.event.channel.messaging.OutboundMessagingChannel" depends-on="MessageService">
         <property name="address" ref="OutboundMessageChannelAddress" />
         <property name="adviceListener" ref="SessionizerRawEventAdviceProcessor"/>
     </bean>
@@ -149,17 +144,5 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         <property name="geoDBFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/geodb/GeoLite2-City.mmdb" />
     </bean>
 
-    <bean id="EventGenerator" class="com.ebay.pulsar.collector.simulator.Simulator">
-		<property name="simulatorFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/Event.txt" />
-		<property name="ipFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/ip.txt" />
-		<property name="uaFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/userAgent.txt" />
-		<property name="itmFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/item.txt" />
-		<property name="siCount" value="100" />
-		<property name="minVolume" value="2" />
-		<property name="peakTimes" value="50" />
-		<property name="batchMode" value="false" />
-	</bean>
-
-    <task:annotation-driven/>
 
 </beans>

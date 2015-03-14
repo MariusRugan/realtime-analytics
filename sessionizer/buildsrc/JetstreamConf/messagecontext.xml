@@ -8,8 +8,8 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
     http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
-
     default-lazy-init="true">
+
     <bean id="SystemPropertiesConfiguration"
         class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
         lazy-init="false">
@@ -24,7 +24,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
             </props>
         </property>
     </bean>
-    
+
     <bean id="MessageServiceProperties"
         class="com.ebay.jetstream.messaging.config.MessageServiceProperties">
         <property name="nicUsage" ref="NICUsage" />

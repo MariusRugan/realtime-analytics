@@ -5,11 +5,6 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
 */
 package com.ebay.pulsar.collector.udf;
 
-import java.io.File;
-import java.net.InetAddress;
-
-import org.springframework.beans.factory.InitializingBean;
-
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.record.City;
@@ -18,6 +13,11 @@ import com.maxmind.geoip2.record.Country;
 import com.maxmind.geoip2.record.Location;
 import com.maxmind.geoip2.record.Postal;
 import com.maxmind.geoip2.record.Subdivision;
+
+import org.springframework.beans.factory.InitializingBean;
+
+import java.io.File;
+import java.net.InetAddress;
 
 public class GeoEnrichmentUtil implements InitializingBean {
 
@@ -43,7 +43,7 @@ public class GeoEnrichmentUtil implements InitializingBean {
     public static GeoInfo getGeoInfo(String ipAddress) {
     	return getInstance()._getGeoInfo(ipAddress);
     }
-    
+
     private GeoInfo _getGeoInfo(String ipAddress) {
     	GeoInfo geoInfo = new GeoInfo();
         if (ipAddress == null) {

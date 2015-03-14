@@ -25,10 +25,10 @@ import com.ebay.jetstream.event.channel.ChannelAddress;
 
 public class TwitterSampleChannel extends AbstractInboundChannel {
     private TwitterStream twitterStream;
-    
+
     @Override
     public void afterPropertiesSet() throws Exception {
-        
+
     }
 
     @Override
@@ -39,7 +39,7 @@ public class TwitterSampleChannel extends AbstractInboundChannel {
 
     @Override
     public void flush() throws EventException {
-        
+
     }
 
     @Override
@@ -47,7 +47,7 @@ public class TwitterSampleChannel extends AbstractInboundChannel {
         return null;
     }
 
-    
+
     @Override
     public int getPendingEvents() {
         return 0;
@@ -81,7 +81,7 @@ public class TwitterSampleChannel extends AbstractInboundChannel {
             @Override
             public void onStatus(Status status) {
                 HashtagEntity[] hashtagEntities = status.getHashtagEntities();
-                
+
                 JetstreamEvent event = new JetstreamEvent();
                 event.setEventType("TwitterSample");
 
@@ -96,12 +96,12 @@ public class TwitterSampleChannel extends AbstractInboundChannel {
                 if (hashtagEntities != null && hashtagEntities.length > 0) {
                     StringBuilder s = new StringBuilder();
                     s.append(hashtagEntities[0].getText());
-                    
+
                     for (int i = 1; i < hashtagEntities.length; i++) {
                         s.append(",");
                         s.append(hashtagEntities[i].getText());
                     }
-                    
+
                     event.put("hashtag", s.toString());
                 }
 
@@ -113,7 +113,7 @@ public class TwitterSampleChannel extends AbstractInboundChannel {
             }
         };
         twitterStream.addListener(listener);
-        twitterStream.sample(); 
+        twitterStream.sample();
     }
 
     @Override
@@ -123,7 +123,7 @@ public class TwitterSampleChannel extends AbstractInboundChannel {
 
     @Override
     protected void processApplicationEvent(ApplicationEvent event) {
-        
+
     }
 
     @Override

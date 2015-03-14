@@ -30,7 +30,7 @@
         <module>sessionizer</module>
         <module>distributor</module>
         <module>metriccalculator</module>
-        <module>Demo</module>
+        <module>demo</module>
     </modules>
 </project>
 

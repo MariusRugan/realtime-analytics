@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Pulsar
+Copyright (C) 2013-2015 eBay Software Foundation
+Licensed under the GPL v2 license.  See LICENSE for full terms.
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+    http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd"
+    default-lazy-init="false">
+
+    <bean id="EventGenerator" class="com.ebay.pulsar.randomtraffic.channel.RandomTrafficGenerator">
+        <property name="simulatorFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/Event.txt" />
+        <property name="ipFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/ip.txt" />
+        <property name="uaFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/userAgent.txt" />
+        <property name="itmFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/item.txt" />
+        <property name="siCount" value="100" />
+        <property name="minVolume" value="2" />
+        <property name="peakTimes" value="50" />
+        <property name="batchMode" value="false" />
+    </bean>
+
+    <bean id="DeviceEnrichmentUtil" class="com.ebay.pulsar.randomtraffic.udf.DeviceEnrichmentUtil" factory-method="getInstance"/>
+
+    <bean id="GeoEnrichmentUtil" class="com.ebay.pulsar.randomtraffic.udf.GeoEnrichmentUtil" factory-method="getInstance">
+        <property name="geoDBFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/geodb/GeoLite2-City.mmdb" />
+    </bean>
+
+    <task:annotation-driven/>
+
+</beans>

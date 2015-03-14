@@ -20,14 +20,15 @@ import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
+/*
 public class Simulator {
-    
+
     public static void main(String[] args) throws Exception {
         for (int i = 0; i < 1; i++) {
             sendMessage();
         }
     }
-    
+
     private static void sendMessage() throws IOException, JsonProcessingException, JsonGenerationException,
             JsonMappingException, UnsupportedEncodingException, HttpException {
         ObjectMapper mapper = new ObjectMapper();
@@ -36,7 +37,7 @@ public class Simulator {
 
         m.put("si", "12345");
         m.put("ct", System.currentTimeMillis());
-        
+
         String payload = mapper.writeValueAsString(m);
         HttpClient client = new HttpClient();
         PostMethod method = new PostMethod("http://localhost:8080/tracking/ingest/PulsarRawEvent");
@@ -47,3 +48,5 @@ public class Simulator {
         System.out.println("Status code: " + status + ", Body: " +  method.getResponseBodyAsString());
     }
 }
+
+*/
