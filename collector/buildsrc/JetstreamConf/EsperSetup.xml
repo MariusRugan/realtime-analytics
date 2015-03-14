@@ -16,8 +16,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
 
     <bean id="AdviceListener" class="com.ebay.jetstream.event.advice.DefaultAdviceImpl" />
 
-    <bean id="EsperConfiguration"
-        class="com.ebay.jetstream.event.processor.esper.EsperConfiguration">
+    <bean id="EsperConfiguration" class="com.ebay.jetstream.event.processor.esper.EsperConfiguration">
         <property name="internalTimerEnabled" value="true" />
         <property name="msecResolution" value="1" />
         <property name="timeSourceNano" value="false" />
@@ -32,10 +31,11 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         <property name="executionLogging" value="true" />
 
         <property name="timerLogging" value="true" />
+
         <property name="autoImport">
             <list>
-                <value>com.ebay.pulsar.randomtraffic.udf.DeviceEnrichmentUtil</value>
-                <value>com.ebay.pulsar.randomtraffic.udf.GeoEnrichmentUtil</value>
+                <value>com.ebay.pulsar.collector.udf.DeviceEnrichmentUtil</value>
+                <value>com.ebay.pulsar.collector.udf.GeoEnrichmentUtil</value>
             </list>
         </property>
     </bean>

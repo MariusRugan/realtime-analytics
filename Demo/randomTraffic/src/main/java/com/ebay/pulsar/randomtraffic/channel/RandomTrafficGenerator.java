@@ -129,7 +129,7 @@ public class RandomTrafficGenerator extends AbstractEventProcessor {
                         payload = buildPayload(m_payload, 1);
                         m_method.setRequestBody(buildPayload(payload, 1));
                     }
-                    LOGGER.info(payload);
+                    LOGGER.trace(payload);
                     m_client.executeMethod(m_method);
                 }
             } catch (HttpException e) {
@@ -280,9 +280,9 @@ public class RandomTrafficGenerator extends AbstractEventProcessor {
         String payload7 = payload6.replace("${campaignName}", "Campaign - " + String.valueOf(random.nextInt(20)));
         String payload8 = payload7.replace("${campaignGMV}", String.valueOf(((double) random.nextInt(100000) * 7) / 100.00));
         String payload9 = payload8.replace("${campaignQuantity}", String.valueOf(random.nextInt(100)));
-        String payload10 = payload9.replace("${deviceType}", String.valueOf(random.nextInt(100)));
+        //String payload10 = payload9.replace("${deviceType}", "Mobile");
 
-        return payload10;
+        return payload9;
     }
 
     private void initGUIDList() {

@@ -71,6 +71,7 @@ public class GeoEnrichmentUtil implements InitializingBean {
             geoInfo.setLongitude(location.getLongitude());
 
             return geoInfo;
+
         } catch(Exception ex){
             return null;
         }

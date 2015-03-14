@@ -75,6 +75,14 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
     </build>
 
     <dependencies>
+
+        <!--internal-->
+        <dependency>
+            <groupId>com.ebay.pulsar</groupId>
+            <artifactId>collector</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <!-- Using logback and redirect all other logs to slf4j -->
         <dependency>
             <groupId>ch.qos.logback</groupId>

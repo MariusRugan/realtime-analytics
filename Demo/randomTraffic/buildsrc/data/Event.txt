@@ -1,17 +1,17 @@
 {
     "si": "${siValue}",
-    "ac": "727354723",
 	"tn": "TenantName",
 	"or": "OriginalName",
 	"ct": ${ctValue},
-    "ipv4": "${ipValue}",
     "ua": "${uaValue}",
-    "et": "{deviceType}",
-    "rf": "http://www.google.com",
-    "url": "http://mycompany.com",
+    "ipv4": "${ipValue}",
+    "rf": "http://referrer.somewhere.com",
+    "et": "Mobile",
+    "url": "http://LandingPage.com",
     "itmT":"${itemTitle}",
     "itmP":${itmPrice},
     "cap":"${campaignName}",
     "capG":${campaignGMV},
-    "capQ":${campaignQuantity}
+    "capQ":${campaignQuantity},
+    "ac": "727354723"
 }

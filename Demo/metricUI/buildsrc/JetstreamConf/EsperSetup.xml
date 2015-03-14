@@ -43,12 +43,12 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
             </list>
         </property>
     </bean>
-    
-    <bean id= "topNumReformFunc" class = "com.espertech.esper.client.ConfigurationPlugInAggregationFunction">
+
+    <bean id="topNumReformFunc" class="com.espertech.esper.client.ConfigurationPlugInAggregationFunction">
          <property name="name" value="topNumReform" />
          <property name="factoryClassName" value="com.ebay.pulsar.metric.esper.aggregator.TopNumReformAggregatorFactory" />
     </bean>
-    
+
     <bean id="EventDefinition"
         class="com.ebay.jetstream.event.processor.esper.EsperDeclaredEvents">
         <property name="eventTypes">

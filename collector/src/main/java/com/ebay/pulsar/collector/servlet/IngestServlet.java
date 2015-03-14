@@ -38,13 +38,14 @@ import com.google.common.base.Charsets;
 /**
  * This is a servlet which receive the json format event and feed the
  * events into rest inbound channel.
- * 
+ *
  * @author xingwang
  *
  */
 public class IngestServlet extends InboundRTBDEventServlet implements InitializingBean, BeanNameAware {
 
     private static final TypeReference<List<Map<String, Object>>> TYPE_LIST_OF_MAP = new TypeReference<List<Map<String, Object>>>() { };
+
     private static final TypeReference<Map<String, Object>> TYPE_FLATMAP = new TypeReference<Map<String, Object>>(){};
 
     // This will allow the jackson use stream to read data but without clear the buffer when it close the stream.
@@ -65,7 +66,9 @@ public class IngestServlet extends InboundRTBDEventServlet implements Initializi
     }
 
     private static final long serialVersionUID = 7299139314716222006L;
+
     private static final String PATH_INGEST = "/pulsar/ingest/";
+
     private static final String PATH_BATCH_INGEST = "/pulsar/batchingest/";
 
     private final ObjectMapper mapper;
@@ -74,6 +77,7 @@ public class IngestServlet extends InboundRTBDEventServlet implements Initializi
     private String beanName;
     private Validator validator;
     private final ObjectWriter validateReusltWriter;
+
     public void setValidator(Validator validator) {
         this.validator = validator;
     }

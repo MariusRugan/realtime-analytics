@@ -20,7 +20,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
             <unpack>false</unpack>
             <scope>runtime</scope>
         </dependencySet>
-    </dependencySets>    
+    </dependencySets>
 
     <fileSets>
         <fileSet>
@@ -32,7 +32,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                 <include>NOTICE*</include>
             </includes>
         </fileSet>
-        
+
         <fileSet>
             <directory>${project.basedir}/buildsrc/JetstreamConf</directory>
             <outputDirectory>JetstreamConf</outputDirectory>
@@ -48,7 +48,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                 <include>*.jar</include>
             </includes>
         </fileSet>
-        
+
         <fileSet>
             <directory>${project.basedir}/buildsrc/scripts</directory>
             <outputDirectory>/</outputDirectory>
@@ -57,5 +57,14 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
             </includes>
             <fileMode>0755</fileMode>
         </fileSet>
+
+        <fileSet>
+            <directory>${project.basedir}/buildsrc/data</directory>
+            <outputDirectory>data</outputDirectory>
+            <includes>
+                <include>**</include>
+            </includes>
+        </fileSet>
+
     </fileSets>
 </assembly>
