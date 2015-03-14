@@ -8,7 +8,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
     http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
-    
+
     default-lazy-init="true">
     <bean id="EsperEventListener"
         class="com.ebay.jetstream.event.processor.esper.EsperEventListener">
@@ -43,16 +43,15 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
             <list>
             </list>
         </property>
-        
+
     </bean>
-    
+
     <bean id= "topKNtestedFunc" class = "com.espertech.esper.client.ConfigurationPlugInAggregationFunction">
          <property name="name" value="topKNested" />
          <property name="factoryClassName" value="com.ebay.pulsar.metriccalculator.esper.aggregator.TopKNestedAggregatorFactory" />
     </bean>
-    
-    <bean id="EventDefinition"
-        class="com.ebay.jetstream.event.processor.esper.EsperDeclaredEvents">
+
+    <bean id="EventDefinition" class="com.ebay.jetstream.event.processor.esper.EsperDeclaredEvents">
         <property name="eventTypes">
             <list>
                 <bean

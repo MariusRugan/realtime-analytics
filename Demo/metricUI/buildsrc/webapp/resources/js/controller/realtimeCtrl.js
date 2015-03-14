@@ -1,12 +1,12 @@
 /*
  * Copyright 2013-2015 eBay Software Foundation
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,31 +16,41 @@
 'use strict';
 
 app.controller('realtimeCtrl',function($scope, $rootScope, $timeout){
-    
+
     var trendDatas = [],
         tableDatas = [],
         OSDatas = [],
         browserDatas = [];
 
     $scope.initRealTimeWebsocket = function(){
+
         console.info('init realtime web socket');
-        $scope.realTimeWebsocketMetric = $rootScope.pulsarmetric('MC_Metric&PulsarOsCount&PulsarBrowserCount&PulsarTopCountryCount', 'ABC', $scope.realTimeRenderData);
+
+        $scope.realTimeWebsocketMetric = $rootScope.pulsarmetric(
+            'MC_Metric&PulsarOsCount&PulsarBrowserCount&PulsarTopCountryCount',
+            'ABC',
+            $scope.realTimeRenderData
+        );
     }
 
     $scope.realTimeCountdown = function(){
         if($scope.realTimeCounter > 1){
             $scope.realTimeCounter--;
-            $scope.realTimeCountdownPromise = $timeout($scope.realTimeCountdown,1000);
+            $scope.realTimeCountdownPromise = $timeout($scope.realTimeCountdown,100);
         }
     };
 
     $scope.realTimeRenderData = function(datas){
+
+        console.log(datas);
         var objs = JSON.parse(datas);
 
         var dataType = '';
-        
+
         if (objs && objs.length >0){
+
             dataType = objs[0].js_ev_type;
+
             if (dataType == 'MC_Metric'){
                 trendDatas = [];
                 if ($scope.initRealTimeCounter){
@@ -48,11 +58,11 @@ app.controller('realtimeCtrl',function($scope, $rootScope, $timeout){
                         $timeout.cancel($scope.realTimeCountdownPromise);
                     }
                     console.info('reset realtime counter');
-                    $scope.realTimeCounter = 10;
-                    $scope.realTimeCountdownPromise = $timeout($scope.realTimeCountdown,1000);
+                    $scope.realTimeCounter = 5;
+                    $scope.realTimeCountdownPromise = $timeout($scope.realTimeCountdown,100);
                 } else {
                     $scope.initRealTimeCounter = true;
-                }   
+                }
             } else if(dataType == 'PulsarTopCountryCount') {
                 tableDatas = [];
             } else if (dataType == 'PulsarBrowserCount') {
@@ -64,11 +74,12 @@ app.controller('realtimeCtrl',function($scope, $rootScope, $timeout){
 
         //Adjust data
         objs.forEach(function(el){
-            
+
             if (dataType == 'MC_Metric'){
                 // trend chart
                 var trendData = {x:el.timestamp, y:el.value};
                 trendDatas.push(trendData);
+
             } else if(dataType == 'PulsarTopCountryCount') {
                 // table
                 var tableData = {country:el.country, value:el.value};
@@ -102,16 +113,17 @@ app.controller('realtimeCtrl',function($scope, $rootScope, $timeout){
 
     angular.element(document).ready(function () {
         $scope.initRealTimeCounter = false;
-        $scope.realTimeCounter = 10;
+        $scope.realTimeCounter = 5;
         $scope.initRealTimeWebsocket();
     });
-    
-    
+
+
     $scope.$on('$destroy',function(){
         $scope.realTimeWebsocketMetric.connection.onclose = function () {
             console.info('close realtime websocket connection');
-            if($scope.realTimeCountdownPromise)
+            if ($scope.realTimeCountdownPromise) {
                 $timeout.cancel($scope.realTimeCountdownPromise);
+            }
             $scope.initRealTimeCounter = false;
         };
         $scope.realTimeWebsocketMetric.connection.close();

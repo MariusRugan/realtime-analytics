@@ -32,5 +32,6 @@
         <module>metriccalculator</module>
         <module>demo</module>
     </modules>
+
 </project>
 

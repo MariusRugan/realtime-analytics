@@ -16,7 +16,6 @@
         <prudent>false</prudent>
     </appender>
 
-
     <!-- Console output -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>

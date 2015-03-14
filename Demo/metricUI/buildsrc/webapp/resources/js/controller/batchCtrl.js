@@ -1,12 +1,12 @@
 /*
  * Copyright 2013-2015 eBay Software Foundation
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,10 +16,10 @@
 'use strict';
 
 app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
-	
+
 	$rootScope.pageOrSession = $rootScope.pageOrSession || 'Page';
 	$rootScope.countryFilter = $rootScope.countryFilter || undefined;
-	
+
 	var pageOrSessionSwitch = jQuery('#pageOrSessionSwitch').find('label');
 	for(var i = 0; i < pageOrSessionSwitch.size(); i++){
 		var label = pageOrSessionSwitch.eq(i);
@@ -78,6 +78,7 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 		});
 		return defer.promise;
 	};
+
 	//pageview wrapper for mixing overall and drill-downed
 	function getPageviewsWrapper(){
 		( $rootScope.countryFilter == undefined ? getOverallPageviews() : getDrillDownedPageviews() ).then(function(trendChartData){
@@ -86,7 +87,7 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 			$scope.trendChartData = [];
 		});
 	};
-	
+
 	//overall session
 	function getOverallSession(){
 		var defer = $q.defer();
@@ -144,7 +145,7 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 			$scope.trendChartData = [];
 		});
 	};
-	
+
 	//overall country
 	function getOverallCountry(){
 		var defer = $q.defer();
@@ -191,7 +192,7 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 			$scope.tableData = [];
 		});
 	};
-	
+
 	//overall os
 	function getOverallOs(){
 		var defer = $q.defer();
@@ -237,7 +238,7 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 			$scope.osChartData = [];
 		});
 	};
-	
+
 	//overall browser
 	function getOverallBrowsers(){
 		var defer = $q.defer();
@@ -283,7 +284,7 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 			$scope.browserChartData = [];
 		});
 	};
-	
+
 	//global refresh function
 	function refresh(){
 		$scope.renderLinearChart($rootScope.pageOrSession);
@@ -291,7 +292,7 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 		getOsWrapper();
 		getBrowsersWrapper();
 	};
-	
+
 	//take prepared stuff into effect
 	$scope.renderLinearChart = function(pageOrSession){
 		if (pageOrSession == 'Page' ){
@@ -316,6 +317,6 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 		$rootScope.countryFilter = undefined;
 		refresh();
 	};
-	
+
 	refresh();
 });

@@ -12,10 +12,13 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
     default-lazy-init="false">
 
     <bean id="EventGenerator" class="com.ebay.pulsar.randomtraffic.channel.RandomTrafficGenerator">
+
         <property name="simulatorFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/Event.txt" />
         <property name="ipFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/ip.txt" />
         <property name="uaFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/userAgent.txt" />
         <property name="itmFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/item.txt" />
+        <property name="refererFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/data/referer.txt" />
+
         <property name="siCount" value="100" />
         <property name="minVolume" value="2" />
         <property name="peakTimes" value="50" />

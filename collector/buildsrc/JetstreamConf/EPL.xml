@@ -7,21 +7,21 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd" default-lazy-init="true">  
-    
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd" default-lazy-init="true">
+
     <bean id="EPL" class="com.ebay.jetstream.event.processor.esper.EPL">
          <property name="statementBlock">
             <value>
                 <![CDATA[
-                
-                    update istream PulsarRawEvent set ct = System.currentTimeMillis() 
+
+                    update istream PulsarRawEvent set ct = System.currentTimeMillis()
                     where ct is null;
-                    
+
                     insert into PulsarEvent
-                    select 
-                        DeviceEnrichmentUtil.getDeviceInfo(ua) as device, 
-                        GeoEnrichmentUtil.getGeoInfo(ipv4) as geo, 
-                        raw as originEvent 
+                    select
+                        DeviceEnrichmentUtil.getDeviceInfo(ua) as device,
+                        GeoEnrichmentUtil.getGeoInfo(ipv4) as geo,
+                        raw as originEvent
                     from PulsarRawEvent as raw;
 
                     @ClusterAffinityTag(colname="si")
@@ -40,11 +40,11 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                         geo.latitude as _lat,
                         geo.countryIsoCode as _tlcn,
                         originEvent.* from PulsarEvent;
-                        
+
                 ]]>
             </value>
         </property>
     </bean>
-    
+
 </beans>
 

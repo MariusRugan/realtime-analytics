@@ -44,7 +44,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@ManagedResource(objectName = "Event/Processor", description = "Event Simulator")
+@ManagedResource(objectName = "Event/Simulator", description = "Event Simulator")
 public class RandomTrafficGenerator extends AbstractEventProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RandomTrafficGenerator.class.getPackage().getName());
@@ -56,6 +56,8 @@ public class RandomTrafficGenerator extends AbstractEventProcessor {
     private String uaFilePath;
 
     private String itmFilePath;
+
+    private String refererFilePath;
 
     private int siCount = 1000;
 
@@ -90,6 +92,8 @@ public class RandomTrafficGenerator extends AbstractEventProcessor {
     static List<String> m_uaList = new ArrayList<String>();
 
     static List<String> m_itemList = new ArrayList<String>();
+
+    static List<String> m_refererList = new ArrayList<String>();
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -176,6 +180,7 @@ public class RandomTrafficGenerator extends AbstractEventProcessor {
         initList(m_ipList, ipFilePath);
         initList(m_uaList, uaFilePath);
         initList(m_itemList, itmFilePath);
+        initList(m_refererList, refererFilePath);
 
         initGUIDList();
 
@@ -270,19 +275,25 @@ public class RandomTrafficGenerator extends AbstractEventProcessor {
     private String replaceSource(String payload, RawSource source) {
 
         Random random = new Random();
+
         String payload1 = payload.replace("${siValue}", source.getIndicatorString());
         String payload2 = payload1.replace("${ipValue}", source.getGeoString());
         String payload3 = payload2.replace("${uaValue}", source.getDeviceString());
+
         String payload4 = payload3.replace("${ctValue}", String.valueOf(System.currentTimeMillis()));
+
         String[] items = m_itemList.get(random.nextInt(m_itemList.size() - 1)).split(":");
+
         String payload5 = payload4.replace("${itemTitle}", items[0]);
-        String payload6 = payload5.replace("${itmPrice}", String.valueOf(((double) random.nextInt(10000) * 36) / 100.00));
+        String payload6 = payload5.replace("${itemPrice}", String.valueOf(((double) random.nextInt(10000) * 36) / 100.00));
+
         String payload7 = payload6.replace("${campaignName}", "Campaign - " + String.valueOf(random.nextInt(20)));
         String payload8 = payload7.replace("${campaignGMV}", String.valueOf(((double) random.nextInt(100000) * 7) / 100.00));
         String payload9 = payload8.replace("${campaignQuantity}", String.valueOf(random.nextInt(100)));
-        //String payload10 = payload9.replace("${deviceType}", "Mobile");
 
-        return payload9;
+        String payload10 = payload9.replace("${refererValue}", m_refererList.get(random.nextInt(m_refererList.size() - 1)));
+
+        return payload10;
     }
 
     private void initGUIDList() {
@@ -297,6 +308,11 @@ public class RandomTrafficGenerator extends AbstractEventProcessor {
         }
     }
 
+    /**
+     * Inits data structure based on file - row by row record
+     * @param list
+     * @param filename
+     */
     private void initList(List<String> list, String filename) {
         FileReader in;
         try {
@@ -318,7 +334,6 @@ public class RandomTrafficGenerator extends AbstractEventProcessor {
                 }
             }
         } catch (FileNotFoundException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         }
     }
