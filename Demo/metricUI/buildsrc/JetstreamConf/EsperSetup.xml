@@ -53,8 +53,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         class="com.ebay.jetstream.event.processor.esper.EsperDeclaredEvents">
         <property name="eventTypes">
             <list>
-                <bean
-                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+                <bean class="com.ebay.jetstream.event.processor.esper.MapEventType">
                     <property name="eventAlias" value="MC_Metric" />
                     <property name="eventFields">
                         <map>
@@ -63,8 +62,8 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                         </map>
                     </property>
                 </bean>
-                <bean
-                    class="com.ebay.jetstream.event.processor.esper.MapEventType">
+
+                <bean class="com.ebay.jetstream.event.processor.esper.MapEventType">
                     <property name="eventAlias" value="PulsarDeviceCount" />
                     <property name="eventFields">
                         <map>
@@ -73,6 +72,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                         </map>
                     </property>
                 </bean>
+
                 <bean
                     class="com.ebay.jetstream.event.processor.esper.MapEventType">
                     <property name="eventAlias" value="PulsarOsCount" />

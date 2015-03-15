@@ -18,20 +18,21 @@
 app.controller('realtimeCtrl',function($scope, $rootScope, $timeout){
 
     var trendDatas = [],
-        tableDatas = [],
+        tableTopCountryCountData = [],
         OSDatas = [],
-        browserDatas = [];
+        browserDatas = [],
+        DeviceDatas = [];
 
     $scope.initRealTimeWebsocket = function(){
 
         console.info('init realtime web socket');
 
         $scope.realTimeWebsocketMetric = $rootScope.pulsarmetric(
-            'MC_Metric&PulsarOsCount&PulsarBrowserCount&PulsarTopCountryCount',
+            'MC_Metric&PulsarOsCount&PulsarBrowserCount&PulsarTopCountryCount&PulsarDeviceCount',
             'ABC',
             $scope.realTimeRenderData
         );
-    }
+    };
 
     $scope.realTimeCountdown = function(){
         if($scope.realTimeCounter > 1){
@@ -42,7 +43,6 @@ app.controller('realtimeCtrl',function($scope, $rootScope, $timeout){
 
     $scope.realTimeRenderData = function(datas){
 
-        console.log(datas);
         var objs = JSON.parse(datas);
 
         var dataType = '';
@@ -64,11 +64,13 @@ app.controller('realtimeCtrl',function($scope, $rootScope, $timeout){
                     $scope.initRealTimeCounter = true;
                 }
             } else if(dataType == 'PulsarTopCountryCount') {
-                tableDatas = [];
+                tableTopCountryCountData = [];
             } else if (dataType == 'PulsarBrowserCount') {
                 browserDatas = [];
             } else if  (dataType == 'PulsarOsCount') {
                 OSDatas = [];
+            } else if (dataType === 'PulsarDeviceCount') {
+                DeviceDatas = [];
             }
         }
 
@@ -79,11 +81,10 @@ app.controller('realtimeCtrl',function($scope, $rootScope, $timeout){
                 // trend chart
                 var trendData = {x:el.timestamp, y:el.value};
                 trendDatas.push(trendData);
-
             } else if(dataType == 'PulsarTopCountryCount') {
                 // table
                 var tableData = {country:el.country, value:el.value};
-                tableDatas.push(tableData);
+                tableTopCountryCountData.push(tableData);
             } else if (dataType == 'PulsarBrowserCount') {
                 // browser chart
                 var browserData = {key:el.browser, val:el.value};
@@ -92,24 +93,34 @@ app.controller('realtimeCtrl',function($scope, $rootScope, $timeout){
                 // OS chart
                 var OSData = {key:el.os, val:el.value};
                 OSDatas.push(OSData);
+            } else if  (dataType === 'PulsarDeviceCount') {
+                // Device table
+                var _deviceName = (el.device) ? el.device : "n/a";
+                var DeviceData = {key:_deviceName, val:el.value};
+                DeviceDatas.push(DeviceData);
             }
         });
 
         $scope.$apply(function () {
             if (dataType == 'MC_Metric'){
                $scope.trendChartData = [{key:'Metrics',values:trendDatas}];
-            } else if(dataType == 'PulsarTopCountryCount') {
-                tableDatas.sort(function (a, b) {
+            } else if(dataType === 'PulsarTopCountryCount') {
+                tableTopCountryCountData.sort(function (a, b) {
                     return (+a.value) < (+b.value);
                 });
-                $scope.tableData = tableDatas;
-            } else if (dataType == 'PulsarBrowserCount') {
+                $scope.tableData = tableTopCountryCountData;
+            } else if (dataType === 'PulsarBrowserCount') {
                 $scope.browserChartData = browserDatas;
-            } else if  (dataType == 'PulsarOsCount') {
+            } else if  (dataType === 'PulsarOsCount') {
                 $scope.osChartData = OSDatas;
+            } else if (dataType === 'PulsarDeviceCount') {
+                DeviceDatas.sort(function (a, b) {
+                    return (+a.value) < (+b.value);
+                });
+                $scope.tableDevicesData = DeviceDatas;
             }
         });
-    }
+    };
 
     angular.element(document).ready(function () {
         $scope.initRealTimeCounter = false;

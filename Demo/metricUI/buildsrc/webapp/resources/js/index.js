@@ -68,9 +68,7 @@ var app = angular.module("indexApp", ['ngResource','ng-nvd3']).run(function($roo
             return pulsarmetric;
         }
 
-        return arguments.length
-            ? connect(arguments[0], arguments[1], arguments[2])
-            : pulsarmetric;
+        return arguments.length ? connect(arguments[0], arguments[1], arguments[2]) : pulsarmetric;
     }
 
 }).directive('ngBanner', function() {

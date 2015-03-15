@@ -192,7 +192,8 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
                 @OutputTo("OutboundMessageChannel")
                 @PublishOn(topics="Pulsar.Report/metric")
                 select * from TwitterEventCount;
-                                    ]]>
+
+                ]]>
             </value>
         </property>
     </bean>
