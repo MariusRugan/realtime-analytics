@@ -52,6 +52,7 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 		});
 		return defer.promise;
 	};
+
 	//drill-downed pageview
 	function getDrillDownedPageviews(){
 		var defer = $q.defer();
@@ -110,6 +111,7 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 		});
 		return defer.promise;
 	};
+
 	//drill-downed session
 	function getDrillDownedSession(){
 		var defer = $q.defer();

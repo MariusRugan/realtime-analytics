@@ -76,7 +76,7 @@ public class IngestServlet extends InboundRTBDEventServlet implements Initializi
     private final ServletStats stats;
     private String beanName;
     private Validator validator;
-    private final ObjectWriter validateReusltWriter;
+    private final ObjectWriter validateResultsWriter;
 
     public void setValidator(Validator validator) {
         this.validator = validator;
@@ -85,7 +85,7 @@ public class IngestServlet extends InboundRTBDEventServlet implements Initializi
     public IngestServlet() {
         super();
         mapper = new ObjectMapper();
-        validateReusltWriter = mapper.typedWriter(ValidationResult.class);
+        validateResultsWriter = mapper.typedWriter(ValidationResult.class);
         stats = new ServletStats();
     }
 
@@ -111,7 +111,7 @@ public class IngestServlet extends InboundRTBDEventServlet implements Initializi
                 response.setStatus(HttpServletResponse.SC_OK);
             } else {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().print(validateReusltWriter.writeValueAsString(result));
+                response.getWriter().print(validateResultsWriter.writeValueAsString(result));
             }
         } else {
             JetstreamEvent event = createEvent(values, eventType);
@@ -158,10 +158,10 @@ public class IngestServlet extends InboundRTBDEventServlet implements Initializi
             PrintWriter printWriter = response.getWriter();
             printWriter.write("[");
             for (int i = 0, t = failedEvents.size() -1 ; i < t; i++) {
-                printWriter.write(validateReusltWriter.writeValueAsString(failedEvents.get(i)));
+                printWriter.write(validateResultsWriter.writeValueAsString(failedEvents.get(i)));
                 printWriter.write(",");
             }
-            printWriter.write(validateReusltWriter.writeValueAsString(failedEvents.get(failedEvents.size() -1)));
+            printWriter.write(validateResultsWriter.writeValueAsString(failedEvents.get(failedEvents.size() - 1)));
             printWriter.write("]");
         }
 

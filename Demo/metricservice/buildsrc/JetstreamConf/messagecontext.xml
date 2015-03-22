@@ -38,8 +38,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
     </bean>
 
     <bean id="MessageService"
-        class="com.ebay.jetstream.messaging.config.MessageServiceConfiguration"
-        depends-on="SystemPropertiesConfiguration">
+        class="com.ebay.jetstream.messaging.config.MessageServiceConfiguration" depends-on="SystemPropertiesConfiguration">
         <property name="messageServiceProperties" ref="MessageServiceProperties" />
     </bean>
 </beans>

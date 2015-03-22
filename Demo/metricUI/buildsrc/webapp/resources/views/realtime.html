@@ -1,64 +1,77 @@
-<div ng-controller="realtimeCtrl">
-  <!--title-->
-  <div class="page-title" >
-    <div>
-      RealTime
+<div data-ng-init="vm.initCtrl()">
+    <!--title-->
+    <div class="page-title">
+        <div>RealTime</div>
+        <span class="container pull-right" data-ng-show="initRealTimeCounter">Next refresh in {{vm.realTimeCounter}}s</span>
     </div>
-    <span class="container pull-right" ng-show="initRealTimeCounter">
-      Next refresh in {{realTimeCounter}}s
-    </span>
-  </div>
-  <!--content-->
-  <div id="container" class="container" role="tabpanel">
-    <div class="col-md-12">
-      <nvd3-line-graph data="trendChartData"  tooltips="true" chart-id="trendChart" response="true" height="350" curve="true" xformat="xTimeFormat(data)" yminvalue="0"></nvd3-line-graph>
+    <!--content-->
+    <div id="container" class="container" role="tabpanel">
+
+        <div class="col-md-12">
+            <nvd3-line-graph data="vm.trendChartData"  tooltips="true" chart-id="trendChart" response="true" height="350" curve="true" xformat="vm.xTimeFormat(data)" yminvalue="0"></nvd3-line-graph>
+        </div>
+
+        <div class="col-md-6 col-sm-6">
+            <nvd3-pie-chart data="vm.osChartData" chart-id="osChart" height="300" label-type="key" showLabels="true" pielabelsoutside="false" hide-legend="false" responsive="true"></nvd3-pie-chart>
+        </div>
+
+        <div class="col-md-6 col-sm-6">
+            <nvd3-pie-chart data="vm.browserChartData" chart-id="browserChart" height="300" label-type="key" showLabels="true" pielabelsoutside="false" hide-legend="false" responsive="true"></nvd3-pie-chart>
+        </div>
+
+        <div class="col-md-12 col-sm-12" data-ng-if="vm.tableTopCountryCountData.data.length > 0">
+            <table class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th colspan="2" style="text-align: right">
+                        Top country stats at: {{vm.tableTopCountryCountData.timestamp | date:'HH:mm:ss dd-MM-yyyy Z'}}
+                    </th>
+                </tr>
+                </thead>
+                <thead>
+                <tr>
+                    <th width="1%"></th>
+                    <th width="33%">Country</th>
+                    <th width="5%">Page views</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="row in vm.tableTopCountryCountData.data">
+                    <td>{{$index+1}}</td>
+                    <td><img ng-banner="{{row.country}}" src="../imgs/blank.gif"/>&nbsp;&nbsp;{{row.country}}</td>
+                    <td>{{row.value}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-md-12 col-sm-12" data-ng-if="vm.tableDeviceCountData.data.length > 0">
+            <table class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th colspan="2" style="text-align: right">
+                        Top device stats at: {{tableDeviceCountData.timestamp | date:'HH:mm:ss dd-MM-yyyy Z'}}
+                    </th>
+                </tr>
+                </thead>
+                <thead>
+                <tr>
+                    <th width="1%"></th>
+                    <th width="33%">Device</th>
+                    <th width="5%">Count</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="row in vm.tableDeviceCountData.data | orderBy : row.val : desc ">
+                    <td>{{$index+1}}</td>
+                    <td>{{row.key || "unknown"}}</td>
+                    <td>{{row.val}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
     </div>
-
-    <div class="col-md-6 col-sm-6">
-      <nvd3-pie-chart data="osChartData" chart-id="os" height="300" label-type="key" showLabels="true" pielabelsoutside="false" hide-legend="false" responsive="true"></nvd3-pie-chart>
-    </div>
-
-    <div class="col-md-6 col-sm-6">
-      <nvd3-pie-chart data="browserChartData" chart-id="broser" height="300" label-type="key" showLabels="true" pielabelsoutside="false" hide-legend="false" responsive="true"></nvd3-pie-chart>
-    </div>
-
-    <div class="col-md-12 col-sm-12">
-      <table class="table table-bordered table-striped">
-        <thead>
-          <tr>
-            <th width="2%">Index</th>
-            <th width="33%">Country</th>
-            <th width="33%">Page</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="data in tableData">
-            <td>{{$index+1}}</td>
-            <td><img ng-banner="{{data.country}}" src="../imgs/blank.gif"/>&nbsp;&nbsp;{{data.country}}</td>
-            <td>{{data.value}}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-  <div class="col-md-12 col-sm-12">
-      <table class="table table-bordered table-striped">
-          <thead>
-          <tr>
-              <th width="2%">Index</th>
-              <th width="33%">Device</th>
-              <th width="33%">Count</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr ng-repeat="data in tableDevicesData">
-              <td>{{$index+1}}</td>
-              <td>{{data.key || "n/a"}}</td>
-              <td>{{data.val}}</td>
-          </tr>
-          </tbody>
-      </table>
-  </div>
-
-  </div>
 </div>

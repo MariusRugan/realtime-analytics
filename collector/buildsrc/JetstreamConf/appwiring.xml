@@ -6,9 +6,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
   -->
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:task="http://www.springframework.org/schema/task"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
-    http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
     default-lazy-init="false">
 
     <bean id="NettyHttpServerConfig" class="com.ebay.jetstream.http.netty.server.HttpServerConfig">
@@ -53,8 +51,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         </property>
     </bean>
 
-    <bean id="InboundRESTEvents"
-        class="com.ebay.jetstream.event.channel.messaging.http.inbound.InboundRESTChannel">
+    <bean id="InboundRESTEvents" class="com.ebay.jetstream.event.channel.messaging.http.inbound.InboundRESTChannel">
         <property name="server" ref="NettyHttpServer" />
         <property name="servlet" ref="InboundRESTServlet" />
         <property name="servletPath" value="/pulsar" />
@@ -69,8 +66,7 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         <property name="channel" ref="InboundMessages"/>
     </bean>
 
-    <bean id="InboundChannelAddress"
-        class="com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress">
+    <bean id="InboundChannelAddress" class="com.ebay.jetstream.event.channel.messaging.MessagingChannelAddress">
         <property name="channelTopics">
             <list>
                 <value>Pulsar.collector/rawEvent</value>
@@ -78,13 +74,11 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
         </property>
     </bean>
 
-    <bean id="InboundMessagingChannelController"
-        class="com.ebay.jetstream.event.channel.messaging.InboundMessagingChannelController">
+    <bean id="InboundMessagingChannelController" class="com.ebay.jetstream.event.channel.messaging.InboundMessagingChannelController">
         <property name="channel" ref="InboundMessages"/>
     </bean>
 
-    <bean id="InboundMessages"
-        class="com.ebay.jetstream.event.channel.messaging.InboundMessagingChannel">
+    <bean id="InboundMessages" class="com.ebay.jetstream.event.channel.messaging.InboundMessagingChannel">
         <property name="address" ref="InboundChannelAddress" />
         <property name="waitTimeBeforeShutdown" value="5000"/>
 
@@ -143,6 +137,5 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
     <bean id="GeoEnrichmentUtil" class="com.ebay.pulsar.collector.udf.GeoEnrichmentUtil" factory-method="getInstance">
         <property name="geoDBFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/geodb/GeoLite2-City.mmdb" />
     </bean>
-
 
 </beans>

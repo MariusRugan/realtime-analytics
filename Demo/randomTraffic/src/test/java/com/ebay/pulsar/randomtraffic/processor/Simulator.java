@@ -3,22 +3,7 @@ Pulsar
 Copyright (C) 2013-2015 eBay Software Foundation
 Licensed under the GPL v2 license.  See LICENSE for full terms.
 */
-package com.ebay.pulsar.collector;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
+package com.ebay.pulsar.randomtraffic.processor;
 
 /*
 public class Simulator {

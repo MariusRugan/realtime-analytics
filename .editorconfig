@@ -26,3 +26,7 @@ indent_size = 4
 # JSON
 [*.json]
 insert_final_newline = false
+
+# TXT
+[*.txt]
+insert_final_newline = false

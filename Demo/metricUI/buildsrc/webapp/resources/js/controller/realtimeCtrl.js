@@ -13,131 +13,163 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
 
-app.controller('realtimeCtrl',function($scope, $rootScope, $timeout){
+/**
+ * @description
+ * @author
+ * @class
+ * @memberOf
+ * @namespace
+ */
+app.controller('realtimeCtrl',
+    [
+        '$scope',
+        '$timeout',
+        'WebSocketService',
+        function realtimeCtrl($scope, $timeout, WebSocketService) {
+            'use strict';
+            /* jshint validthis: true */
+            var vm = this;
 
-    var trendDatas = [],
-        tableTopCountryCountData = [],
-        OSDatas = [],
-        browserDatas = [],
-        DeviceDatas = [];
+            vm.data = {};
 
-    $scope.initRealTimeWebsocket = function(){
+            vm.trendDatas = [];
 
-        console.info('init realtime web socket');
+            vm.tableTopCountryCountData = {
+                data: [],
+                timestamp: null
+            };
 
-        $scope.realTimeWebsocketMetric = $rootScope.pulsarmetric(
-            'MC_Metric&PulsarOsCount&PulsarBrowserCount&PulsarTopCountryCount&PulsarDeviceCount',
-            'ABC',
-            $scope.realTimeRenderData
-        );
-    };
+            vm.OSDatas = [];
+            vm.browserDatas = [];
 
-    $scope.realTimeCountdown = function(){
-        if($scope.realTimeCounter > 1){
-            $scope.realTimeCounter--;
-            $scope.realTimeCountdownPromise = $timeout($scope.realTimeCountdown,100);
-        }
-    };
+            vm.tableDeviceCountData = {
+                    data: [],
+                    timestamp: null
+            };
 
-    $scope.realTimeRenderData = function(datas){
+            vm.initCtrl = function() {
+                vm.initRealTimeCounter = true;
+                vm.realTimeCounter = 5;
+                vm.initRealTimeWebsocket();
+            };
 
-        var objs = JSON.parse(datas);
+            vm.initRealTimeWebsocket = function(){
+                vm.realTimeWebsocketMetric = WebSocketService.connect(
+                    'MC_Metric&PulsarOsCount&PulsarBrowserCount&PulsarTopCountryCount&PulsarDeviceCount',
+                    '1',
+                    vm.realTimeRenderData
+                );
+            };
 
-        var dataType = '';
-
-        if (objs && objs.length >0){
-
-            dataType = objs[0].js_ev_type;
-
-            if (dataType == 'MC_Metric'){
-                trendDatas = [];
-                if ($scope.initRealTimeCounter){
-                    if($scope.realTimeCountdownPromise){
-                        $timeout.cancel($scope.realTimeCountdownPromise);
-                    }
-                    console.info('reset realtime counter');
-                    $scope.realTimeCounter = 5;
-                    $scope.realTimeCountdownPromise = $timeout($scope.realTimeCountdown,100);
-                } else {
-                    $scope.initRealTimeCounter = true;
+            vm.realTimeCountdown = function(){
+                if(vm.realTimeCounter > 1){
+                    vm.realTimeCounter--;
+                    vm.realTimeCountdownPromise = $timeout(vm.realTimeCountdown, 1000);
                 }
-            } else if(dataType == 'PulsarTopCountryCount') {
-                tableTopCountryCountData = [];
-            } else if (dataType == 'PulsarBrowserCount') {
-                browserDatas = [];
-            } else if  (dataType == 'PulsarOsCount') {
-                OSDatas = [];
-            } else if (dataType === 'PulsarDeviceCount') {
-                DeviceDatas = [];
-            }
+            };
+
+            vm.realTimeRenderData = function(data, timestamp){
+
+                var objs = JSON.parse(data);
+
+                var dataType;
+
+                if (objs && objs.length > 0){
+
+                    dataType = objs[0].js_ev_type;
+
+                    if (dataType == 'MC_Metric') {
+                        vm.trendDatas = [];
+                        if (vm.initRealTimeCounter){
+                            if(vm.realTimeCountdownPromise){
+                                $timeout.cancel(vm.realTimeCountdownPromise);
+                            }
+                            //console.info('reset realtime counter');
+                            vm.realTimeCounter = 10;
+                            vm.realTimeCountdownPromise = $timeout(vm.realTimeCountdown, 1000);
+                        } else {
+                            vm.initRealTimeCounter = true;
+                        }
+                    } else if(dataType == 'PulsarTopCountryCount') {
+                        vm.tableTopCountryCountData = {
+                            data: [],
+                            timestamp: null
+                        };
+                    } else if (dataType == 'PulsarBrowserCount') {
+                        vm.browserDatas = [];
+                    } else if  (dataType == 'PulsarOsCount') {
+                        vm.OSDatas = [];
+                    } else if (dataType === 'PulsarDeviceCount') {
+                        vm.tableDeviceCountData = {
+                            data: [],
+                            timestamp: null
+                        }
+                    }
+                }
+
+                //Adjust data
+                objs.forEach(function(el){
+
+                    if (dataType == 'MC_Metric'){
+
+                        // Trend chart
+                        var trendData = {x:el.timestamp, y:el.value};
+                        vm.trendDatas.push(trendData);
+                        vm.trendChartData = [{key:'Metrics',values: vm.trendDatas}];
+
+                    } else if(dataType == 'PulsarTopCountryCount') {
+
+                        // TopCountry table
+                        vm.tableTopCountryCountData.data.push({country:el.country, value:el.value});
+                        vm.tableTopCountryCountData.timestamp = timestamp;
+
+                        vm.tableTopCountryCountData.data.sort(function (a, b) {
+                            return (+a.value) < (+b.value);
+                        });
+
+                    } else if (dataType == 'PulsarBrowserCount') {
+
+                        // Browser chart
+                        var browserData = {key:el.browser, val:el.value};
+                        vm.browserDatas.push(browserData);
+                        vm.browserChartData = vm.browserDatas;
+
+                    } else if  (dataType == 'PulsarOsCount') {
+
+                        // OS chart
+                        var OSData = {key:el.os, val:el.value};
+                        vm.OSDatas.push(OSData);
+                        vm.osChartData = vm.OSDatas;
+
+                    } else if  (dataType === 'PulsarDeviceCount') {
+
+                        // Devices table
+                        var _deviceName = (el.device) ? el.device : "unknown";
+                        vm.tableDeviceCountData.data.push({key:_deviceName, val:el.value});
+                        vm.tableDeviceCountData.timestamp = timestamp;
+                        vm.tableDeviceCountData.data.sort(function (a, b) {
+                            return (+a.value) < (+b.value);
+                        });
+
+                    }
+                });
+            };
+
+            //trend chart x axis format
+            vm.xTimeFormat = function (data) {
+                return moment(data).format('H:mm:ss');
+            };
+
+            $scope.$on('$destroy',function(){
+                vm.realTimeWebsocketMetric.connection.onclose = function onClose() {
+                    if (vm.realTimeCountdownPromise) {
+                        $timeout.cancel(vm.realTimeCountdownPromise);
+                    }
+                    vm.initRealTimeCounter = false;
+                };
+                vm.realTimeWebsocketMetric.connection.close();
+            });
         }
-
-        //Adjust data
-        objs.forEach(function(el){
-
-            if (dataType == 'MC_Metric'){
-                // trend chart
-                var trendData = {x:el.timestamp, y:el.value};
-                trendDatas.push(trendData);
-            } else if(dataType == 'PulsarTopCountryCount') {
-                // table
-                var tableData = {country:el.country, value:el.value};
-                tableTopCountryCountData.push(tableData);
-            } else if (dataType == 'PulsarBrowserCount') {
-                // browser chart
-                var browserData = {key:el.browser, val:el.value};
-                browserDatas.push(browserData);
-            } else if  (dataType == 'PulsarOsCount') {
-                // OS chart
-                var OSData = {key:el.os, val:el.value};
-                OSDatas.push(OSData);
-            } else if  (dataType === 'PulsarDeviceCount') {
-                // Device table
-                var _deviceName = (el.device) ? el.device : "n/a";
-                var DeviceData = {key:_deviceName, val:el.value};
-                DeviceDatas.push(DeviceData);
-            }
-        });
-
-        $scope.$apply(function () {
-            if (dataType == 'MC_Metric'){
-               $scope.trendChartData = [{key:'Metrics',values:trendDatas}];
-            } else if(dataType === 'PulsarTopCountryCount') {
-                tableTopCountryCountData.sort(function (a, b) {
-                    return (+a.value) < (+b.value);
-                });
-                $scope.tableData = tableTopCountryCountData;
-            } else if (dataType === 'PulsarBrowserCount') {
-                $scope.browserChartData = browserDatas;
-            } else if  (dataType === 'PulsarOsCount') {
-                $scope.osChartData = OSDatas;
-            } else if (dataType === 'PulsarDeviceCount') {
-                DeviceDatas.sort(function (a, b) {
-                    return (+a.value) < (+b.value);
-                });
-                $scope.tableDevicesData = DeviceDatas;
-            }
-        });
-    };
-
-    angular.element(document).ready(function () {
-        $scope.initRealTimeCounter = false;
-        $scope.realTimeCounter = 5;
-        $scope.initRealTimeWebsocket();
-    });
-
-
-    $scope.$on('$destroy',function(){
-        $scope.realTimeWebsocketMetric.connection.onclose = function () {
-            console.info('close realtime websocket connection');
-            if ($scope.realTimeCountdownPromise) {
-                $timeout.cancel($scope.realTimeCountdownPromise);
-            }
-            $scope.initRealTimeCounter = false;
-        };
-        $scope.realTimeWebsocketMetric.connection.close();
-    });
-
-});
+    ]
+);

@@ -4,17 +4,19 @@ Copyright (C) 2013-2015 eBay Software Foundation
 Licensed under the GPL v2 license.  See LICENSE for full terms.
 */
 
-package com.ebay.pulsar.randomtraffic.channel;
+package com.ebay.pulsar.randomtraffic.processor;
 
 import com.ebay.jetstream.event.EventException;
 import com.ebay.jetstream.event.JetstreamEvent;
 import com.ebay.jetstream.event.support.AbstractEventProcessor;
-import com.ebay.jetstream.management.Management;
 
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEvent;
@@ -44,48 +46,61 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@ManagedResource(objectName = "Event/Simulator", description = "Event Simulator")
+@ManagedResource(objectName = "Event/Processor/Simulator", description = "Event Simulator")
 public class RandomTrafficGenerator extends AbstractEventProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RandomTrafficGenerator.class.getPackage().getName());
 
+    /**
+     * Random data source
+     */
     private String simulatorFilePath;
-
     private String ipFilePath;
-
     private String uaFilePath;
-
-    private String itmFilePath;
-
+    private String itemsFilePath;
     private String refererFilePath;
 
-    private int siCount = 1000;
+    /**
+     * Connection information
+     */
+    private String collectorEventType;
+    private String collectorUri;
+    private String collectorBatchUri;
+    private String collectorNodeHost;
+    private String collectorNodePort;
 
-    private int minVolume = 10;
+    /**
+     *
+     */
+    private boolean m_runFlag;
 
-    private double peakTimes = 100;
+    /**
+     * Batch mode flag
+     */
+    private boolean batchMode;
+    private long m_batchSize;
 
-    private boolean batchMode = false;
+    /**
+     *
+     */
+    private int siCount;
+
+    private int minVolume;
+
+    private double peakTimes;
+
 
     private HttpClient m_client;
 
-    private PostMethod m_method;
+    private int m_client_retry_count = 10;
 
-    private long m_batchSize;
+    private PostMethod m_method;
 
     private String m_payload = "";
 
-    private boolean m_runFlag = true;
-
     private List m_guidList = new ArrayList<RawSource>();
 
-    static String EVENTTYPE = "PulsarRawEvent";
 
-    static String URL = "/pulsar/ingest/";
-
-    static String BATCH_URL = "/pulsar/batchingest/";
-
-    static String NODE = "http://localhost:8080";
 
     static List<String> m_ipList = new ArrayList<String>();
 
@@ -97,8 +112,6 @@ public class RandomTrafficGenerator extends AbstractEventProcessor {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Management.removeBeanOrFolder(getBeanName(), this);
-        Management.addBean(getBeanName(), this);
         init();
     }
 
@@ -120,6 +133,10 @@ public class RandomTrafficGenerator extends AbstractEventProcessor {
     @ManagedOperation
     @Scheduled(fixedRate=2000)
     public void generate() {
+
+        // Max sleep default
+        int sleepMax = 1000;
+
         while (true) {
             try {
                 if (m_runFlag) {
@@ -127,11 +144,13 @@ public class RandomTrafficGenerator extends AbstractEventProcessor {
                     if (batchMode) {
                         adjustBatchSize();
                         payload = buildPayload(m_payload, m_batchSize);
-                        m_method.setRequestBody(buildPayload(payload, m_batchSize));
+                        m_method.setRequestBody(payload);
+                        sleepMax = 5000;
                     } else {
                         m_batchSize = 1;
                         payload = buildPayload(m_payload, 1);
-                        m_method.setRequestBody(buildPayload(payload, 1));
+                        m_method.setRequestBody(payload);
+                        sleepMax = 1000;
                     }
                     LOGGER.trace(payload);
                     m_client.executeMethod(m_method);
@@ -146,8 +165,7 @@ public class RandomTrafficGenerator extends AbstractEventProcessor {
             }
 
             Random random = new Random();
-            long sleep = random.nextInt(1000);
-
+            long sleep = random.nextInt(sleepMax);
             LOGGER.info("sleep = " + sleep);
 
             try {
@@ -170,34 +188,44 @@ public class RandomTrafficGenerator extends AbstractEventProcessor {
     }
 
     @Override
-    protected void processApplicationEvent(ApplicationEvent event) {}
+    protected void processApplicationEvent(ApplicationEvent event) {
+        LOGGER.info("Received in processApplicationEvent: " + event.getClass().getName());
+    }
 
     @Override
-    public void resume() {}
+    public void resume() {
+        m_runFlag = true;
+    }
 
     private void init() {
 
         initList(m_ipList, ipFilePath);
         initList(m_uaList, uaFilePath);
-        initList(m_itemList, itmFilePath);
+        initList(m_itemList, itemsFilePath);
         initList(m_refererList, refererFilePath);
 
         initGUIDList();
 
         String finalURL = "";
         if (batchMode) {
-            finalURL = BATCH_URL;
+            finalURL = "http://" + collectorNodeHost + ":" + collectorNodePort + collectorBatchUri;
         } else {
-            finalURL = URL;
+            finalURL = "http://" + collectorNodeHost + ":" + collectorNodePort + collectorUri;;
         }
 
         m_payload = readFromResource();
 
         HttpClientParams clientParams = new HttpClientParams();
-        clientParams.setSoTimeout(60000);
+        //http.connection.timeout
+        clientParams.setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 5 * 1000);
+        //http.socket.timeout
+        clientParams.setParameter(CoreConnectionPNames.SO_TIMEOUT, 60 * 1000);
+        //@todo http.connection-manager.timeout
 
         m_client = new HttpClient(clientParams);
-        m_method = new PostMethod(NODE + finalURL + EVENTTYPE);
+        m_client.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(m_client_retry_count, true));
+
+        m_method = new PostMethod(finalURL + collectorEventType);
         m_method.setRequestHeader("Connection", "Keep-Alive");
         m_method.setRequestHeader("Accept-Charset", "UTF-8");
     }
@@ -252,7 +280,7 @@ public class RandomTrafficGenerator extends AbstractEventProcessor {
         StringBuffer strBuffer = new StringBuffer();
 
         if (size > 1) {
-            strBuffer.append("]");
+            strBuffer.append("[");
         }
 
         for (int i = 0; i < size; i++) {
@@ -269,6 +297,7 @@ public class RandomTrafficGenerator extends AbstractEventProcessor {
         if (size > 1) {
             strBuffer.append("]");
         }
+        LOGGER.info("payload size = " + size);
         return strBuffer.toString();
     }
 
@@ -283,17 +312,17 @@ public class RandomTrafficGenerator extends AbstractEventProcessor {
         String payload4 = payload3.replace("${ctValue}", String.valueOf(System.currentTimeMillis()));
 
         String[] items = m_itemList.get(random.nextInt(m_itemList.size() - 1)).split(":");
+        String payload5 = payload4.replace("${itemTitle}", items[1]);
+        String payload6 = payload5.replace("${itemPrice}", items[2]);
+        //String payload7 = payload6.replace("${itemCategory}", items[0]);
 
-        String payload5 = payload4.replace("${itemTitle}", items[0]);
-        String payload6 = payload5.replace("${itemPrice}", String.valueOf(((double) random.nextInt(10000) * 36) / 100.00));
+        String payload8 = payload6.replace("${campaignName}", "Campaign - " + String.valueOf(random.nextInt(20)));
+        String payload9 = payload8.replace("${campaignGMV}", String.valueOf(((double) random.nextInt(100000) * 7) / 100.00));
+        String payload10 = payload9.replace("${campaignQuantity}", String.valueOf(random.nextInt(100)));
 
-        String payload7 = payload6.replace("${campaignName}", "Campaign - " + String.valueOf(random.nextInt(20)));
-        String payload8 = payload7.replace("${campaignGMV}", String.valueOf(((double) random.nextInt(100000) * 7) / 100.00));
-        String payload9 = payload8.replace("${campaignQuantity}", String.valueOf(random.nextInt(100)));
+        String payload11 = payload10.replace("${refererValue}", m_refererList.get(random.nextInt(m_refererList.size() - 1)));
 
-        String payload10 = payload9.replace("${refererValue}", m_refererList.get(random.nextInt(m_refererList.size() - 1)));
-
-        return payload10;
+        return payload11;
     }
 
     private void initGUIDList() {
