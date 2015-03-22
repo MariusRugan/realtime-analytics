@@ -1,14 +1,13 @@
 <div data-ng-init="vm.initCtrl()">
     <!--title-->
     <div class="page-title">
-        <div>RealTime</div>
-        <span class="container pull-right" data-ng-show="initRealTimeCounter">Next refresh in {{vm.realTimeCounter}}s</span>
+        <div>RealTime {{vm.data.realTimeCounter}}</div>
     </div>
     <!--content-->
     <div id="container" class="container" role="tabpanel">
 
         <div class="col-md-12">
-            <nvd3-line-graph data="vm.trendChartData"  tooltips="true" chart-id="trendChart" response="true" height="350" curve="true" xformat="vm.xTimeFormat(data)" yminvalue="0"></nvd3-line-graph>
+            <nvd3-line-graph data="vm.trendChartData" tooltips="true" chart-id="trendChart" height="350" curve="true" xformat="vm.xTimeFormat(data)" yminvalue="0" responsive="true" ></nvd3-line-graph>
         </div>
 
         <div class="col-md-6 col-sm-6">
@@ -25,7 +24,7 @@
                 <tr>
                     <th></th>
                     <th colspan="2" style="text-align: right">
-                        Top country stats at: {{vm.tableTopCountryCountData.timestamp | date:'HH:mm:ss dd-MM-yyyy Z'}}
+                        Top country stats at: {{vm.tableTopCountryCountData.timestamp | date:'HH:mm:ss'}}
                     </th>
                 </tr>
                 </thead>
@@ -52,7 +51,7 @@
                 <tr>
                     <th></th>
                     <th colspan="2" style="text-align: right">
-                        Top device stats at: {{tableDeviceCountData.timestamp | date:'HH:mm:ss dd-MM-yyyy Z'}}
+                        Top device stats at: {{vm.tableDeviceCountData.timestamp | date:'HH:mm:ss'}}
                     </th>
                 </tr>
                 </thead>

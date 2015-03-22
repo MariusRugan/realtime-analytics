@@ -31,7 +31,10 @@ app.controller('realtimeCtrl',
             /* jshint validthis: true */
             var vm = this;
 
-            vm.data = {};
+            vm.data = {
+                initRealTimeCounter: false,
+                realTimeCounter: 10
+            };
 
             vm.trendDatas = [];
 
@@ -49,23 +52,22 @@ app.controller('realtimeCtrl',
             };
 
             vm.initCtrl = function() {
-                vm.initRealTimeCounter = true;
-                vm.realTimeCounter = 5;
+                vm.data.initRealTimeCounter = true;
                 vm.initRealTimeWebsocket();
             };
 
             vm.initRealTimeWebsocket = function(){
                 vm.realTimeWebsocketMetric = WebSocketService.connect(
                     'MC_Metric&PulsarOsCount&PulsarBrowserCount&PulsarTopCountryCount&PulsarDeviceCount',
-                    '1',
+                    '11223344',
                     vm.realTimeRenderData
                 );
             };
 
             vm.realTimeCountdown = function(){
-                if(vm.realTimeCounter > 1){
-                    vm.realTimeCounter--;
-                    vm.realTimeCountdownPromise = $timeout(vm.realTimeCountdown, 1000);
+                if (vm.data.realTimeCounter > 0) {
+                    vm.data.realTimeCounter--;
+                    vm.realTimeCountdownPromise = $timeout(vm.realTimeCountdown, 999);
                 }
             };
 
@@ -81,15 +83,14 @@ app.controller('realtimeCtrl',
 
                     if (dataType == 'MC_Metric') {
                         vm.trendDatas = [];
-                        if (vm.initRealTimeCounter){
+                        if (vm.data.initRealTimeCounter){
                             if(vm.realTimeCountdownPromise){
                                 $timeout.cancel(vm.realTimeCountdownPromise);
                             }
-                            //console.info('reset realtime counter');
-                            vm.realTimeCounter = 10;
-                            vm.realTimeCountdownPromise = $timeout(vm.realTimeCountdown, 1000);
+                            vm.data.realTimeCounter = 10;
+                            vm.realTimeCountdownPromise = $timeout(vm.realTimeCountdown, 999);
                         } else {
-                            vm.initRealTimeCounter = true;
+                            vm.data.initRealTimeCounter = true;
                         }
                     } else if(dataType == 'PulsarTopCountryCount') {
                         vm.tableTopCountryCountData = {

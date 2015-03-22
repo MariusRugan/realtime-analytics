@@ -320,5 +320,9 @@ app.controller('batchCtrl',function($scope, $rootScope, MetricService, $q){
 		refresh();
 	};
 
+    $scope.xTimeFormat = function (data) {
+        return moment(data).format('H:mm:ss');
+    };
+
 	refresh();
 });

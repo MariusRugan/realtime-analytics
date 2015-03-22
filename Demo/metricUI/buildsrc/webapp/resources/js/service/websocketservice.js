@@ -42,11 +42,9 @@ angular.module("pulsarRtaDemoApp")
                          callback(evt.data, evt.timeStamp);
                      }
                  };
-
                  return pulsarmetric;
              }
 
-             //return arguments.length ? connect(arguments[0], arguments[1], arguments[2]) : pulsarmetric;
              return pulsarmetric;
 
          }
