@@ -40,6 +40,14 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
 
     <bean id="InboundRESTServlet" class="com.ebay.pulsar.collector.servlet.IngestServlet" >
         <property name="validator" ref="Validator"/>
+        <property name="stats" ref="ServletStats" />
+    </bean>
+
+
+    <bean id="ErrorManager" class="com.ebay.jetstream.event.support.ErrorManager"></bean>
+
+    <bean id="ServletStats" class="com.ebay.pulsar.collector.servlet.ServletStats">
+        <property name="errorManager" ref="ErrorManager"/>
     </bean>
 
     <bean id="NettyHttpServer" class="com.ebay.jetstream.http.netty.server.HttpServer">
@@ -137,5 +145,21 @@ Licensed under the GPL v2 license.  See LICENSE for full terms.
     <bean id="GeoEnrichmentUtil" class="com.ebay.pulsar.collector.udf.GeoEnrichmentUtil" factory-method="getInstance">
         <property name="geoDBFilePath" value="#{systemEnvironment['JETSTREAM_HOME']}/geodb/GeoLite2-City.mmdb" />
     </bean>
+
+    <!-- JMX -->
+    <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+        <property name="locateExistingServerIfPossible" value="true" />
+    </bean>
+
+    <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+        <property name="beans">
+            <map>
+                <entry key="com.ebay.pulsar.collector.servlet:name=ServletStats" value-ref="ServletStats"/>
+            </map>
+        </property>
+        <property name="server" ref="mbeanServer"/>
+        <property name="autodetect" value="true"/>
+    </bean>
+
 
 </beans>

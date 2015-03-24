@@ -15,18 +15,28 @@ import com.ebay.jetstream.event.support.ErrorManager;
 
 @ManagedResource(objectName = "Event/Channel", description = "IngestServlet")
 public class ServletStats {
-    private String lastFailedRequest;
-    private final ErrorManager errors = new ErrorManager();
-    private final AtomicLong errorCount = new AtomicLong(0);
-    private final AtomicLong ingestRequestCount = new AtomicLong(0);
-    private final AtomicLong ingestBatchRequestCount = new AtomicLong(0);
-    private final AtomicLong invalidRequestCount = new AtomicLong(0);
 
-    @ManagedOperation
+    private String lastFailedRequest;
+
+    private ErrorManager errorManager;
+
+    private AtomicLong errorCount = new AtomicLong(0);
+
+    private AtomicLong ingestRequestCount = new AtomicLong(0);
+
+    private AtomicLong ingestBatchRequestCount = new AtomicLong(0);
+
+    private AtomicLong invalidRequestCount = new AtomicLong(0);
+
+    @ManagedOperation(description="Clean Errors")
     public void cleanErrors() {
         errorCount.set(0);
-        errors.clearErrorList();
+        errorManager.clearErrorList();
         lastFailedRequest = null;
+    }
+
+    public void setErrorManager(ErrorManager errorManager) {
+        this.errorManager = errorManager;
     }
 
     public long getIngestRequestCount() {
@@ -43,7 +53,7 @@ public class ServletStats {
 
     @ManagedAttribute
     public ErrorManager getErrorManager() {
-        return errors;
+        return errorManager;
     }
 
     public String getLastFailedRequest() {
@@ -60,7 +70,7 @@ public class ServletStats {
 
     public void registerError(Throwable ex) {
         errorCount.incrementAndGet();
-        errors.registerError(ex);
+        errorManager.registerError(ex);
     }
 
     public void setLastFailedRequest(String lastFailedRequest) {
@@ -69,10 +79,6 @@ public class ServletStats {
 
     public void incInvalidRequestCount() {
         invalidRequestCount.incrementAndGet();
-    }
-
-    public long getInvalidRequestCount() {
-        return invalidRequestCount.get();
     }
 
 }

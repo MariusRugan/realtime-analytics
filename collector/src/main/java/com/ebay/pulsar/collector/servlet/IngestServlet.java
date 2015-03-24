@@ -72,10 +72,15 @@ public class IngestServlet extends InboundRTBDEventServlet implements Initializi
     private static final String PATH_BATCH_INGEST = "/pulsar/batchingest/";
 
     private final ObjectMapper mapper;
+
     private InboundRESTChannel inboundChannel;
-    private final ServletStats stats;
+
+    private ServletStats stats;
+
     private String beanName;
+
     private Validator validator;
+
     private final ObjectWriter validateResultsWriter;
 
     public void setValidator(Validator validator) {
@@ -86,7 +91,10 @@ public class IngestServlet extends InboundRTBDEventServlet implements Initializi
         super();
         mapper = new ObjectMapper();
         validateResultsWriter = mapper.typedWriter(ValidationResult.class);
-        stats = new ServletStats();
+    }
+
+    public void setStats(ServletStats stats) {
+        this.stats = stats;
     }
 
     private void add(HttpServletRequest request, String pathInfo, HttpServletResponse response) throws Exception {
@@ -123,7 +131,6 @@ public class IngestServlet extends InboundRTBDEventServlet implements Initializi
     private void batchAdd(HttpServletRequest request, String pathInfo, HttpServletResponse response) throws Exception {
         String eventType = pathInfo.substring(pathInfo.lastIndexOf('/') + 1);
 
-
         UTF8InputStreamReaderWrapper reader;
 
         if (request.getCharacterEncoding() != null) {
@@ -134,6 +141,7 @@ public class IngestServlet extends InboundRTBDEventServlet implements Initializi
 
         List<Map<String, Object>> eventList = mapper.readValue(reader, TYPE_LIST_OF_MAP);
         List<ValidationResult> failedEvents = null;
+
         for (Map<String, Object> values : eventList) {
             if (validator != null) {
                 ValidationResult result = validator.validate(values, eventType);
@@ -151,6 +159,7 @@ public class IngestServlet extends InboundRTBDEventServlet implements Initializi
                 inboundChannel.onMessage(event);
             }
         }
+
         if (failedEvents == null) {
             response.setStatus(HttpServletResponse.SC_OK);
         } else {
@@ -166,7 +175,6 @@ public class IngestServlet extends InboundRTBDEventServlet implements Initializi
         }
 
     }
-
 
     @Override
     public void afterPropertiesSet() throws Exception {
